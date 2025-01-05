@@ -1,12 +1,16 @@
 package openai
 
 import (
+	"encoding/json"
 	"github.com/bitia-ru/goai/ai"
 	goOpenai "github.com/sashabaranov/go-openai"
+	"github.com/sashabaranov/go-openai/jsonschema"
 )
 
 type Dialog struct {
-	messages []goOpenai.ChatCompletionMessage
+	modelType string
+	tools     []ai.Tool
+	messages  []goOpenai.ChatCompletionMessage
 }
 
 type Message struct {
@@ -16,6 +20,13 @@ type Message struct {
 func (d *Dialog) AppendUserMessage(message string) {
 	d.messages = append(d.messages, goOpenai.ChatCompletionMessage{
 		Role:    goOpenai.ChatMessageRoleUser,
+		Content: message,
+	})
+}
+
+func (d *Dialog) AppendSystemMessage(message string) {
+	d.messages = append(d.messages, goOpenai.ChatCompletionMessage{
+		Role:    goOpenai.ChatMessageRoleSystem,
 		Content: message,
 	})
 }
@@ -47,4 +58,69 @@ func (m Message) Type() ai.MessageType {
 	}
 
 	return ai.MessageTypeUndefined
+}
+
+func (d *Dialog) SetModelSize(size ai.ModelSize) error {
+	switch size {
+	case ai.ModelS:
+		d.modelType = goOpenai.GPT4oMini
+	default:
+		d.modelType = goOpenai.GPT4o
+	}
+
+	return nil
+}
+
+func (d *Dialog) GetOpenAIModelName() string {
+	return d.modelType
+}
+
+func (d *Dialog) SetTools(tools []ai.Tool) error {
+	// TODO: check tools content
+	d.tools = tools
+
+	return nil
+}
+
+func (d *Dialog) GetOpenAITools() []goOpenai.Tool {
+	var aiTools []goOpenai.Tool
+
+	for _, tool := range d.tools {
+		parameters := jsonschema.Definition{
+			Type:       jsonschema.Object,
+			Properties: make(map[string]jsonschema.Definition),
+			Required:   []string{},
+			Items:      nil,
+		}
+
+		for _, parameter := range tool.Parameters {
+			parameters.Properties[parameter.Name] = jsonschema.Definition{
+				Type:        aiParameterTypeToOpenaiToolParameterType(parameter.Type),
+				Description: parameter.Description,
+			}
+		}
+
+		aiTools = append(aiTools, goOpenai.Tool{
+			Type: goOpenai.ToolTypeFunction,
+			Function: &goOpenai.FunctionDefinition{
+				Name:        tool.Name,
+				Description: tool.Description,
+				Strict:      false,
+				Parameters:  parameters,
+			},
+		})
+	}
+
+	return aiTools
+}
+
+func ExecuteTool(tool ai.Tool, toolCall goOpenai.ToolCall) (string, error) {
+	parameters := make(map[string]interface{})
+	err := json.Unmarshal([]byte(toolCall.Function.Arguments), &parameters)
+
+	if err != nil {
+		return "", err
+	}
+
+	return tool.Function(parameters)
 }
