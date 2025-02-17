@@ -43,6 +43,14 @@ func (d *Dialog) GetMessages() []ai.Message {
 	return messages
 }
 
+func (d *Dialog) GetLastMessage() ai.Message {
+	if len(d.messages) == 0 {
+		return nil
+	}
+
+	return Message{&d.messages[len(d.messages)-1]}
+}
+
 func (m Message) Content() string {
 	return m.ChatCompletionMessage.Content
 }
@@ -80,6 +88,17 @@ func (d *Dialog) SetTools(tools []ai.Tool) error {
 	d.tools = tools
 
 	return nil
+}
+
+func (d *Dialog) Duplicate() ai.Dialog {
+	res := Dialog{
+		modelType: d.modelType,
+		tools:     d.tools,
+	}
+
+	copy(res.messages, d.messages)
+
+	return &res
 }
 
 func (d *Dialog) GetOpenAITools() []goOpenai.Tool {
