@@ -29,22 +29,17 @@ func (c *client) NewDialog() ai.Dialog {
 		tools: []ai.Tool{},
 	}
 
-	d.SetModelSize(ai.ModelS)
+	_ = d.SetModelSize(ai.ModelS)
 
 	return d
 }
 
-func (c *client) Query(query string, dialog ai.Dialog) error {
+func (c *client) RequestCompletion(dialog ai.Dialog) error {
 	aiDialog, ok := dialog.(*Dialog)
 
 	if !ok {
 		return fmt.Errorf("invalid dialog type")
 	}
-
-	aiDialog.messages = append(aiDialog.messages, goOpenai.ChatCompletionMessage{
-		Role:    goOpenai.ChatMessageRoleUser,
-		Content: query,
-	})
 
 	finished := false
 
@@ -94,12 +89,22 @@ func (c *client) Query(query string, dialog ai.Dialog) error {
 					}
 				}
 			}
-		} else {
-
 		}
 	}
 
 	return nil
+}
+
+func (c *client) Query(query string, dialog ai.Dialog) error {
+	aiDialog, ok := dialog.(*Dialog)
+
+	if !ok {
+		return fmt.Errorf("invalid dialog type")
+	}
+
+	aiDialog.AppendUserMessage(query)
+
+	return c.RequestCompletion(aiDialog)
 }
 
 func aiParameterTypeToOpenaiToolParameterType(parameterType ai.DataType) jsonschema.DataType {
