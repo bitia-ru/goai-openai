@@ -1,4 +1,4 @@
-github.com/bitia-ru/goai v0.0.1 h1:FW+bz2ioP1H7T/xpY880q423s4qgEeeTL/3sWU0vNEQ=
-github.com/bitia-ru/goai v0.0.1/go.mod h1:Wv7YdoN5h/3JjwgliBuvx6aav20yFGEIxwHt4/4biMQ=
+github.com/bitia-ru/goai v0.0.2 h1:C9u9punmPWast9ROJZ3T70OMmUa+PCZd/NExmZAuXAI=
+github.com/bitia-ru/goai v0.0.2/go.mod h1:Wv7YdoN5h/3JjwgliBuvx6aav20yFGEIxwHt4/4biMQ=
 github.com/sashabaranov/go-openai v1.36.0 h1:fcSrn8uGuorzPWCBp8L0aCR95Zjb/Dd+ZSML0YZy9EI=
 github.com/sashabaranov/go-openai v1.36.0/go.mod h1:lj5b/K+zjTSFxVLijLSTDZuP7adOgerWeFyZLUhAKRg=

@@ -72,6 +72,8 @@ func (d *Dialog) SetModelSize(size ai.ModelSize) error {
 	switch size {
 	case ai.ModelS:
 		d.modelType = goOpenai.GPT4oMini
+	case ai.ModelXL:
+		d.modelType = goOpenai.GPT4Turbo
 	default:
 		d.modelType = goOpenai.GPT4o
 	}
