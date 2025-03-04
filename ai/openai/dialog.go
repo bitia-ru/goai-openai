@@ -24,6 +24,28 @@ func (d *Dialog) AppendUserMessage(message string) {
 	})
 }
 
+func (d *Dialog) AppendUserMessageWithImage(messageText string, image string) {
+	var message goOpenai.ChatCompletionMessage
+
+	message.Role = goOpenai.ChatMessageRoleUser
+
+	message.MultiContent = []goOpenai.ChatMessagePart{
+		{
+			Type: goOpenai.ChatMessagePartTypeText,
+			Text: messageText,
+		},
+		{
+			Type: goOpenai.ChatMessagePartTypeImageURL,
+			ImageURL: &goOpenai.ChatMessageImageURL{
+				URL:    image,
+				Detail: goOpenai.ImageURLDetailHigh,
+			},
+		},
+	}
+
+	d.messages = append(d.messages, message)
+}
+
 func (d *Dialog) AppendSystemMessage(message string) {
 	d.messages = append(d.messages, goOpenai.ChatCompletionMessage{
 		Role:    goOpenai.ChatMessageRoleSystem,

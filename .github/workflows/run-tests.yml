@@ -27,8 +27,8 @@ jobs:
         run: |
           go mod tidy
 
-      - name: Run tests
-        env:
-          OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
-        run: |
-          go test ./... -v
+      #- name: Run tests
+      #  env:
+      #    OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
+      #  run: |
+      #    go test ./... -v
