@@ -6,7 +6,12 @@ import (
 	"github.com/bitia-ru/goai/ai"
 	goOpenai "github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
+	"net/http"
 )
+
+type ClientConfig struct {
+	HttpClient *http.Client
+}
 
 type client struct {
 	ctx              context.Context
@@ -14,14 +19,24 @@ type client struct {
 	maxQueryMessages int
 }
 
-func NewClient(ctx context.Context, token string) ai.Client {
+func NewClientWithConfig(ctx context.Context, token string, clientConfig ClientConfig) ai.Client {
+	config := goOpenai.DefaultConfig(token)
+
+	if clientConfig.HttpClient != nil {
+		config.HTTPClient = clientConfig.HttpClient
+	}
+
 	c := &client{
 		ctx:              ctx,
-		aiClient:         goOpenai.NewClient(token),
+		aiClient:         goOpenai.NewClientWithConfig(config),
 		maxQueryMessages: 1024,
 	}
 
 	return c
+}
+
+func NewClient(ctx context.Context, token string) ai.Client {
+	return NewClientWithConfig(ctx, token, ClientConfig{})
 }
 
 func (c *client) NewDialog() ai.Dialog {
