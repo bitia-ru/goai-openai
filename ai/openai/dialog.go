@@ -29,19 +29,22 @@ func (d *Dialog) AppendUserMessageWithImage(messageText string, image string) {
 
 	message.Role = goOpenai.ChatMessageRoleUser
 
-	message.MultiContent = []goOpenai.ChatMessagePart{
-		{
+	message.MultiContent = make([]goOpenai.ChatMessagePart, 0)
+
+	if messageText != "" {
+		message.MultiContent = append(message.MultiContent, goOpenai.ChatMessagePart{
 			Type: goOpenai.ChatMessagePartTypeText,
 			Text: messageText,
-		},
-		{
-			Type: goOpenai.ChatMessagePartTypeImageURL,
-			ImageURL: &goOpenai.ChatMessageImageURL{
-				URL:    image,
-				Detail: goOpenai.ImageURLDetailHigh,
-			},
-		},
+		})
 	}
+
+	message.MultiContent = append(message.MultiContent, goOpenai.ChatMessagePart{
+		Type: goOpenai.ChatMessagePartTypeImageURL,
+		ImageURL: &goOpenai.ChatMessageImageURL{
+			URL:    image,
+			Detail: goOpenai.ImageURLDetailHigh,
+		},
+	})
 
 	d.messages = append(d.messages, message)
 }
