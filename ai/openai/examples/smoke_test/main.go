@@ -63,6 +63,7 @@ func main() {
 
 	if messages[3].Content() != "GPT-4" {
 		fmt.Printf("Unexpected response: %v (expected GPT-4)", messages[3].Content())
+		return
 	}
 
 	fmt.Println("Smoke test passed")

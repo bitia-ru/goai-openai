@@ -11,6 +11,7 @@ import (
 
 type ClientConfig struct {
 	HttpClient *http.Client
+	BaseURL    string
 }
 
 type client struct {
@@ -24,6 +25,10 @@ func NewClientWithConfig(ctx context.Context, token string, clientConfig ClientC
 
 	if clientConfig.HttpClient != nil {
 		config.HTTPClient = clientConfig.HttpClient
+	}
+
+	if clientConfig.BaseURL != "" {
+		config.BaseURL = clientConfig.BaseURL
 	}
 
 	c := &client{
@@ -41,7 +46,8 @@ func NewClient(ctx context.Context, token string) ai.Client {
 
 func (c *client) NewDialog() ai.Dialog {
 	d := &Dialog{
-		tools: []ai.Tool{},
+		tools:       []ai.Tool{},
+		temperature: float32(1.0),
 	}
 
 	_ = d.SetModelSize(ai.ModelS)
@@ -62,9 +68,10 @@ func (c *client) RequestCompletion(dialog ai.Dialog) error {
 		resp, err := c.aiClient.CreateChatCompletion(
 			c.ctx,
 			goOpenai.ChatCompletionRequest{
-				Model:    aiDialog.GetOpenAIModelName(),
-				Tools:    aiDialog.GetOpenAITools(),
-				Messages: aiDialog.messages,
+				Model:       aiDialog.GetOpenAIModelName(),
+				Tools:       aiDialog.GetOpenAITools(),
+				Messages:    aiDialog.messages,
+				Temperature: aiDialog.temperature,
 			},
 		)
 

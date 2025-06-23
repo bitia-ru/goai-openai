@@ -2,15 +2,17 @@ package openai
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/bitia-ru/goai/ai"
 	goOpenai "github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
 )
 
 type Dialog struct {
-	modelType string
-	tools     []ai.Tool
-	messages  []goOpenai.ChatCompletionMessage
+	modelType   string
+	temperature float32
+	tools       []ai.Tool
+	messages    []goOpenai.ChatCompletionMessage
 }
 
 type Message struct {
@@ -106,6 +108,12 @@ func (d *Dialog) SetModelSize(size ai.ModelSize) error {
 	return nil
 }
 
+func (d *Dialog) SetModelName(name string) error {
+	d.modelType = name
+
+	return nil
+}
+
 func (d *Dialog) GetOpenAIModelName() string {
 	return d.modelType
 }
@@ -113,6 +121,16 @@ func (d *Dialog) GetOpenAIModelName() string {
 func (d *Dialog) SetTools(tools []ai.Tool) error {
 	// TODO: check tools content
 	d.tools = tools
+
+	return nil
+}
+
+func (d *Dialog) SetTemperature(temperature float32) error {
+	if temperature < 0 || temperature > 2 {
+		return fmt.Errorf("invalid temperature value: %d", temperature)
+	}
+
+	d.temperature = temperature
 
 	return nil
 }
