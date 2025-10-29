@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/bitia-ru/goai-openai/ai/openai"
 	"os"
+
+	"github.com/bitia-ru/goai-openai/ai/openai"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 		"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Zero_People_band.jpg/2560px-Zero_People_band.jpg",
 	)
 
-	err := c.RequestCompletion(d)
+	_, err := c.RequestCompletion(d)
 
 	if err != nil {
 		fmt.Printf("Error querying OpenAI: %v\n", err)

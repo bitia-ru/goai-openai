@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/bitia-ru/goai-openai/ai/openai"
 	"os"
 	"strings"
+
+	"github.com/bitia-ru/goai-openai/ai/openai"
 )
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 	d.AppendSystemMessage("You need to calculate a mathematical expression.")
 	d.AppendSystemMessage("Answer format: number without any additional symbol. Example:42")
 
-	err = c.Query("4 * (3 + 10)", d)
+	_, err = c.Query("4 * (3 + 10)", d)
 
 	if err != nil {
 		fmt.Printf("Error querying OpenAI: %v\n", err)

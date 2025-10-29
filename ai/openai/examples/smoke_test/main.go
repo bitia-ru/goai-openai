@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/bitia-ru/goai-openai/ai/openai"
 	"github.com/bitia-ru/goai/ai"
-	"os"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 
 	d := c.NewDialog()
 
-	err := c.Query("Calculate exression and answer with a single word (number): 4 * (3 + 10)", d)
+	_, err := c.Query("Calculate exression and answer with a single word (number): 4 * (3 + 10)", d)
 
 	if err != nil {
 		fmt.Printf("Error querying OpenAI: %v\n", err)
@@ -47,7 +48,10 @@ func main() {
 		return
 	}
 
-	err = c.Query("What is your AI model name? Reply with a single word. Specify the right version (3, 4, 4o, 4o-mini).", d)
+	_, err = c.Query(
+		"What is your AI model name? Reply with a single word. Specify the right version (3, 4, 4o, 4o-mini).",
+		d,
+	)
 
 	if err != nil {
 		fmt.Printf("Error querying OpenAI: %v\n", err)

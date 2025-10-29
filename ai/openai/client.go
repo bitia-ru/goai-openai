@@ -3,10 +3,12 @@ package openai
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/bitia-ru/goai/ai"
 	goOpenai "github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
-	"net/http"
 )
 
 type ClientConfig struct {
@@ -55,16 +57,20 @@ func (c *client) NewDialog() ai.Dialog {
 	return d
 }
 
-func (c *client) RequestCompletion(dialog ai.Dialog) error {
+func (c *client) RequestCompletion(dialog ai.Dialog) (ai.ResponseMetadata, error) {
+	metadata := ai.ResponseMetadata{}
+
 	aiDialog, ok := dialog.(*Dialog)
 
 	if !ok {
-		return fmt.Errorf("invalid dialog type")
+		return metadata, fmt.Errorf("invalid dialog type")
 	}
 
 	finished := false
 
 	for !finished {
+		startTime := time.Now()
+
 		resp, err := c.aiClient.CreateChatCompletion(
 			c.ctx,
 			goOpenai.ChatCompletionRequest{
@@ -75,11 +81,18 @@ func (c *client) RequestCompletion(dialog ai.Dialog) error {
 			},
 		)
 
+		elapsed := time.Since(startTime)
+
 		if err != nil {
-			return err
+			return metadata, err
 		}
 
 		finished = true
+
+		metadata.PromptTokensSpent += resp.Usage.PromptTokens
+		metadata.CompletionTokensSpent += resp.Usage.CompletionTokens
+		metadata.TotalTokensSpent += resp.Usage.TotalTokens
+		metadata.TimeSpentMs += float32(elapsed.Milliseconds())
 
 		aiDialog.messages = append(aiDialog.messages, resp.Choices[0].Message)
 
@@ -114,14 +127,14 @@ func (c *client) RequestCompletion(dialog ai.Dialog) error {
 		}
 	}
 
-	return nil
+	return metadata, nil
 }
 
-func (c *client) Query(query string, dialog ai.Dialog) error {
+func (c *client) Query(query string, dialog ai.Dialog) (ai.ResponseMetadata, error) {
 	aiDialog, ok := dialog.(*Dialog)
 
 	if !ok {
-		return fmt.Errorf("invalid dialog type")
+		return ai.ResponseMetadata{}, fmt.Errorf("invalid dialog type")
 	}
 
 	aiDialog.AppendUserMessage(query)
